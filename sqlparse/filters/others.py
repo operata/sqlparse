@@ -8,16 +8,30 @@
 import re
 
 from sqlparse import sql, tokens as T
+from sqlparse.engine import grouping
 from sqlparse.utils import split_unquoted_newlines
 
 
-class StripCommentsFilter:
+class GroupingFilter:
+    def __init__(self):
+        self._enabled = False
 
+    def enable(self):
+        self._enabled = True
+
+    def process(self, stmt):
+        if self._enabled:
+            return grouping.group(stmt)
+        else:
+            return stmt
+
+
+class StripCommentsFilter:
     @staticmethod
-    def _process(tlist):
+    def process(stmt):
         def get_next_comment():
             # TODO(andi) Comment types should be unified, see related issue38
-            return tlist.token_next_by(i=sql.Comment, t=T.Comment)
+            return stmt.token_next_by(i=sql.Comment, t=T.Comment)
 
         def _get_insert_token(token):
             """Returns either a whitespace or the line breaks from token."""
@@ -31,10 +45,12 @@ class StripCommentsFilter:
             else:
                 return sql.Token(T.Whitespace, ' ')
 
+        grouping.group_comments(stmt)
+
         tidx, token = get_next_comment()
         while token:
-            pidx, prev_ = tlist.token_prev(tidx, skip_ws=False)
-            nidx, next_ = tlist.token_next(tidx, skip_ws=False)
+            pidx, prev_ = stmt.token_prev(tidx, skip_ws=False)
+            nidx, next_ = stmt.token_next(tidx, skip_ws=False)
             # Replace by whitespace if prev and next exist and if they're not
             # whitespaces. This doesn't apply if prev or next is a parenthesis.
             if (prev_ is None or next_ is None
@@ -43,16 +59,13 @@ class StripCommentsFilter:
                 # Insert a whitespace to ensure the following SQL produces
                 # a valid SQL (see #425).
                 if prev_ is not None and not prev_.match(T.Punctuation, '('):
-                    tlist.tokens.insert(tidx, _get_insert_token(token))
-                tlist.tokens.remove(token)
+                    stmt.tokens.insert(tidx, _get_insert_token(token))
+                stmt.tokens.remove(token)
             else:
-                tlist.tokens[tidx] = _get_insert_token(token)
+                stmt.tokens[tidx] = _get_insert_token(token)
 
             tidx, token = get_next_comment()
 
-    def process(self, stmt):
-        [self.process(sgroup) for sgroup in stmt.get_sublists()]
-        StripCommentsFilter._process(stmt)
         return stmt
 
 
