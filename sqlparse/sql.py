@@ -230,15 +230,16 @@ class TokenList(TokenBase):
             idx = end
 
     def flatten(self):
-        """Generator yielding ungrouped tokens.
-
-        This method is recursively called for all child tokens.
-        """
-        for token in self.tokens:
-            if token.is_group:
-                yield from token.flatten()
+        stack = [iter(self.tokens)]
+        while stack:
+            for token in stack[-1]:
+                if token.is_group:
+                    stack.append(iter(token.tokens))
+                    break
+                else:
+                    yield token
             else:
-                yield token
+                stack.pop()
 
     def get_sublists(self):
         for token in self.tokens:
