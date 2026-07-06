@@ -1,0 +1,55 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: sqlparse
+  description: >
+    A Python library (fork of the open-source python-sqlparse) that provides
+    non-validating SQL (Structured Query Language) parsing, splitting, and
+    formatting. Used by Operata's Superset v1 BI (Business Intelligence)
+    analytics platform to parse and format SQL queries in SQL Lab and
+    query-editor surfaces.
+  annotations:
+    github.com/project-slug: operata/sqlparse
+  tags:
+    - library
+    - python
+    - sql
+    - superset
+    - user-experience
+  links:
+    - url: https://github.com/operata/sqlparse/blob/master/README.rst
+      title: README
+      icon: doc
+    - url: https://operata.atlassian.net/jira/software/projects/OPDEV/boards
+      title: Jira Board
+      icon: developerBoard
+spec:
+  owner: group:signals
+  lifecycle: production
+  domain: user-experience
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sqlparse
+  description: >
+    A Python library (fork of the open-source python-sqlparse) that provides
+    non-validating SQL (Structured Query Language) parsing, splitting, and
+    formatting. Used by Operata's Superset v1 BI (Business Intelligence)
+    analytics platform to parse and format SQL queries in SQL Lab and
+    query-editor surfaces.
+  tags:
+    - library
+    - python
+    - sql
+    - superset
+    - user-experience
+spec:
+  type: library
+  lifecycle: production
+  owner: group:signals
+  system: sqlparse
+  domain: user-experience
+  dependsOn:
+    - superset
