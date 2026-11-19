@@ -24,7 +24,7 @@ metadata:
       title: Jira Board
       icon: developerBoard
 spec:
-  owner: group:signals
+  owner: group:signal
   lifecycle: production
   domain: user-experience
 
@@ -48,7 +48,7 @@ metadata:
 spec:
   type: library
   lifecycle: production
-  owner: group:signals
+  owner: group:signal
   system: sqlparse
   domain: user-experience
   dependsOn:
